@@ -17,8 +17,34 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QDialog, QLabel, QPushButton,
     QSizePolicy, QTextEdit, QWidget)
-
+import os
+import report_creation_ui
 class Ui_Dialog(object):
+
+    def save_report(self):
+        self.window = QDialog()
+        self.ui = report_creation_ui.Ui_Dialog()
+
+        # self.ui.target_usage(target_usage)
+
+        self.ui.setupUi(self.window)
+        self.window.show()
+        print("saving report")
+    def launch_diagnostic_usb(self):#unused
+        import win32com.client
+
+        wmi = win32com.client.GetObject("winmgmts:")
+        output = ""
+        for usb in wmi.InstancesOf("Win32_USBHub"):
+            output+=usb.DeviceID
+    def launch_diagnostics(self):
+        delimiter = ", "
+        #=============
+        output = delimiter.join(os.popen('ipconfig').readlines())
+        output = output.encode('cp1251').decode('cp866')#fix encoding
+        self.outputTextEdit.setText(output)
+        print("diagnostic laaunched")
+        self.launch_diagnostic_usb()
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
@@ -32,13 +58,13 @@ class Ui_Dialog(object):
         self.outputTextEdit = QTextEdit(Dialog)
         self.outputTextEdit.setObjectName(u"outputTextEdit")
         self.outputTextEdit.setGeometry(QRect(30, 70, 631, 321))
-        self.savePushButton = QPushButton(Dialog)
+        self.savePushButton = QPushButton(Dialog, clicked = lambda: self.save_report())
         self.savePushButton.setObjectName(u"savePushButton")
         self.savePushButton.setGeometry(QRect(20, 410, 101, 41))
-        self.launchDiagnosticPushButton = QPushButton(Dialog)
+        self.launchDiagnosticPushButton = QPushButton(Dialog, clicked = lambda:self.launch_diagnostics())
         self.launchDiagnosticPushButton.setObjectName(u"launchDiagnosticPushButton")
         self.launchDiagnosticPushButton.setGeometry(QRect(270, 410, 141, 41))
-        self.cancelPushButton = QPushButton(Dialog)
+        self.cancelPushButton = QPushButton(Dialog, clicked = lambda:Dialog.close())
         self.cancelPushButton.setObjectName(u"cancelPushButton")
         self.cancelPushButton.setGeometry(QRect(560, 410, 141, 41))
 
